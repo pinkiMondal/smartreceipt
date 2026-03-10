@@ -1,0 +1,2 @@
+# smartreceipt
+Smart Receipt Generation
