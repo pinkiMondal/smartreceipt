@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Digital Receipt — CardConnect</title>
+  <style>
+    :root { --primary: #2563eb; --primary-dark: #1e40af; --success: #16a34a; --surface: #f8fafc; --text: #1e293b; --muted: #94a3b8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 50%,#7c3aed 100%); min-height:100vh; display:flex; justify-content:center; padding:16px 12px; }
+    .receipt { background:#fff; border-radius:20px; max-width:420px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,.3); overflow:hidden; margin:auto; }
+    .brand { background:linear-gradient(135deg,#0f172a,#1e293b); padding:20px; text-align:center; position:relative; overflow:hidden; }
+    .brand::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(37,99,235,.15) 0%,transparent 70%); }
+    .brand-name { color:#fff; font-size:22px; font-weight:800; letter-spacing:2px; position:relative; }
+    .brand-name span { color:#60a5fa; }
+    .brand-sub { color:#64748b; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; margin-top:4px; position:relative; }
+
+    .merchant { text-align:center; padding:24px 20px 20px; }
+    .merchant-icon { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--primary),#7c3aed); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; font-weight:800; box-shadow:0 4px 15px rgba(37,99,235,.3); overflow:hidden; }
+    .merchant-icon img { width:100%; height:100%; object-fit:cover; display:block; }
+    .merchant-name { font-size:20px; font-weight:700; color:var(--text); }
+    .merchant-addr { font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4; }
+    .merchant-phone { font-size:12px; color:var(--primary); margin-top:2px; font-weight:500; }
+
+    .amount-hero { text-align:center; padding:20px; background:linear-gradient(135deg,#eff6ff,#f0f9ff); border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; }
+    .amount-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; font-weight:600; }
+    .amount-value { font-size:44px; font-weight:800; color:var(--text); margin:4px 0; }
+    .status-badge { display:inline-block; padding:4px 16px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.5px; background:#dcfce7; color:#166534; }
+    .eco { display:inline-flex; align-items:center; gap:4px; background:#ecfdf5; color:#065f46; padding:5px 12px; border-radius:16px; font-size:10px; font-weight:600; margin-top:10px; }
+
+    .details { padding:16px 20px; }
+    .section-title { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; padding-bottom:8px; border-bottom:1px solid #f1f5f9; margin-bottom:4px; }
+    .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f8fafc; font-size:13px; }
+    .row:last-child { border-bottom:none; }
+    .row-label { color:var(--muted); font-weight:500; }
+    .row-value { color:var(--text); font-weight:600; text-align:right; max-width:60%; word-break:break-all; }
+    .row-total .row-label, .row-total .row-value { font-size:15px; font-weight:800; color:var(--text); }
+
+    .download-btn { display:flex; align-items:center; justify-content:center; gap:8px; margin:16px 20px; padding:14px; background:linear-gradient(135deg,#2563eb,#1e40af); color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; width:calc(100% - 40px); letter-spacing:.3px; box-shadow:0 4px 15px rgba(37,99,235,.35); -webkit-tap-highlight-color:transparent; }
+    .download-btn:active { transform:scale(.98); }
+    .download-btn svg { width:18px; height:18px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+    .footer { text-align:center; padding:16px; background:#f8fafc; border-top:1px solid #f1f5f9; }
+    .footer-text { font-size:10px; color:#cbd5e1; line-height:1.6; }
+    .footer a { color:var(--primary); text-decoration:none; font-weight:600; }
+    .receipt-id { font-family:monospace; font-size:9px; color:#cbd5e1; margin-top:4px; display:block; }
+
+    @media print {
+      body { background:none; padding:0; }
+      .receipt { border-radius:0; box-shadow:none; max-width:100%; }
+      .download-btn { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="brand">
+      <div class="brand-name">CARD<span>CONNECT</span></div>
+      <div class="brand-sub">🔒 Digital Receipt • Verified & Secure</div>
+    </div>
+
+    <div class="merchant">
+      <div class="merchant-icon">
+        <img src="./animal_hospital.png"
+             alt="O'Connor Animal Hospital logo"
+             loading="lazy"
+             width="56"
+             height="56" />
+      </div>
+      <div class="merchant-name">O'Connor Animal Hospital</div>
+      <div class="merchant-addr">3014 North O'Connor Road, Irving, TX 75062</div>
+      <div class="merchant-phone">(972) 570-0234</div>
+    </div>
+
+    <div class="merchant">
+      <div class="amount-hero">
+        <div class="amount-label">Total Amount</div>
+        <div class="amount-value">$125.00</div>
+        <div class="status-badge">✓ Approved</div>
+        <br/>
+        <div class="eco">🌱 You saved a tree — this is a digital receipt!</div>
+      </div>
+
+      <div class="details">
+        <div class="section-title">Transaction Details</div>
+        <div class="row"><span class="row-label">Date & Time</span><span class="row-value" id="dt">—</span></div>
+        <div class="row"><span class="row-label">Order ID</span><span class="row-value">#608010425</span></div>
+        <div class="row"><span class="row-label">Reference</span><span class="row-value">004800247066</span></div>
+        <div class="row"><span class="row-label">Auth Code</span><span class="row-value">45814Z</span></div>
+        <div class="row"><span class="row-label">Batch</span><span class="row-value">123</span></div>
+        <div class="row"><span class="row-label">Merchant ID</span><span class="row-value">496108376880</span></div>
+      </div>
+
+      <div class="details" style="padding-top:0">
+        <div class="section-title">Payment</div>
+        <div class="row"><span class="row-label">Amount</span><span class="row-value">$125.00</span></div>
+        <div class="row row-total"><span class="row-label">Total</span><span class="row-value">$125.00</span></div>
+        <div class="row"><span class="row-label">Card</span><span class="row-value">MASTERCARD XX5072</span></div>
+        <div class="row"><span class="row-label">Cardholder</span><span class="row-value">JOHN DOE</span></div>
+        <div class="row"><span class="row-label">Entry Mode</span><span class="row-value">Contactless Chip</span></div>
+      </div>
+    </div>
+
+    <button class="download-btn" onclick="window.print()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Receipt (PDF)
+    </button>
+
+    <div class="footer">
+      <div class="footer-text">
+        Secured by <a href="https://cardconnect.com">CardConnect</a> — A Fiserv Company<br/>
+        <span class="receipt-id" id="rid"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set today's timestamp
+    (function(){
+      var now = new Date();
+      var p = function(n){ return String(n).padStart(2,'0'); };
+      var ts = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())
+                +' '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+      document.getElementById('dt').textContent = ts;
+      document.getElementById('rid').textContent =
+        'Receipt #247066-' + Date.now().toString(36).toUpperCase();
+    })();
+  </script>
+</body>
+</html>
